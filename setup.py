@@ -63,7 +63,7 @@ class install(orig_install):
 #  data installer with improved intelligence over distutils
 #  data files are copied into the project directory instead
 #  of willy-nilly
-class smart_install_data(install_data):   
+class smart_install_data(install_data):
     def run(self):
         install_cmd = self.get_finalized_command('install')
         if install_cmd.veusz_resource_dir:
@@ -99,7 +99,7 @@ if py2app and sys.platform == 'darwin':
                 'CFBundleTypeRole': 'Editor',
                 }]
         }
-    
+
     extraoptions = {
         'setup_requires': ['py2app'],
         'app': ['veusz_main.py'],
@@ -121,28 +121,29 @@ def findData(dirname, extns):
     """Return tuple for directory name and list of file extensions for data."""
     files = []
     for extn in extns:
-        files += glob.glob(os.path.join(dirname, '*.'+extn))
+        files += glob.glob(os.path.join(dirname, '*.' + extn))
     files.sort()
     return (dirname, files)
 
-setup(name = 'veusz',
-      version = version,
-      description = 'A scientific plotting package',
-      long_description = descr,
-      author = 'Jeremy Sanders',
-      author_email = 'jeremy@jeremysanders.net',
-      url = 'http://home.gna.org/veusz/',
-      license = 'GPL',
-      classifiers = [ 'Programming Language :: Python',
+setup(name='veusz',
+      version=version,
+      description='A scientific plotting package',
+      long_description=descr,
+      author='Jeremy Sanders',
+      author_email='jeremy@jeremysanders.net',
+      url='http://home.gna.org/veusz/',
+      license='GPL',
+      classifiers=[ 'Programming Language :: Python',
                       'Development Status :: 5 - Production/Stable',
                       'Environment :: X11 Applications :: Qt',
                       'Intended Audience :: Science/Research',
                       'License :: OSI Approved :: '
                       'GNU General Public License (GPL)',
                       'Topic :: Scientific/Engineering :: Visualization' ],
-      package_dir = { 'veusz': '',
+      package_dir={ 'veusz': '',
                       'veusz.dialogs': 'dialogs',
                       'veusz.document': 'document',
+                      'veusz.formats': 'formats',
                       'veusz.helpers': 'helpers',
                       'veusz.plugins': 'plugins',
                       'veusz.qtwidgets': 'qtwidgets',
@@ -152,14 +153,17 @@ setup(name = 'veusz',
                       'veusz.widgets': 'widgets',
                       'veusz.windows': 'windows',
                       },
-      data_files = [ ('', ['VERSION']),
+      data_files=[ ('', ['VERSION']),
                      findData('dialogs', ('ui',)),
+                     findData('formats/standard', ('ui',)),
                      findData('windows/icons', ('png', 'svg')),
                      findData('examples', ('vsz', 'py', 'csv', 'dat')),
                      ],
-      packages = [ 'veusz',
+      packages=[ 'veusz',
                    'veusz.dialogs',
                    'veusz.document',
+                   'veusz.formats',
+                   'veusz.formats.standard',
                    'veusz.helpers',
                    'veusz.plugins',
                    'veusz.qtwidgets',
@@ -169,7 +173,7 @@ setup(name = 'veusz',
                    'veusz.windows',
                    ],
 
-      ext_modules = [
+      ext_modules=[
         # mathml widget
         Extension('veusz.helpers.qtmml',
                   ['helpers/src/qtmml/qtmmlwidget.cpp',
@@ -207,8 +211,8 @@ setup(name = 'veusz',
                                 numpy.get_include()],
                   ),
         ],
-                                
-      cmdclass = {'build_ext': pyqtdistutils.build_ext,
+
+      cmdclass={'build_ext': pyqtdistutils.build_ext,
                   'install_data': smart_install_data,
                   'install': install},
 

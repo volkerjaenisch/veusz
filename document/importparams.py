@@ -64,23 +64,6 @@ class ImportParamsBase(object):
             newp[k] = getattr(self, k)
         return self.__class__(**newp)
 
-class ImportParamsSimple(ImportParamsBase):
-    """simpleread import parameters.
-
-    additional parameters:
-     descriptor: data descriptor
-     useblocks: read datasets as blocks
-     datastr: text to read from instead of file
-     ignoretext: whether to ignore lines of text
-    """
-
-    defaults = {
-        'descriptor': '',
-        'useblocks': False,
-        'datastr': None,
-        'ignoretext': False,
-        }
-    defaults.update(ImportParamsBase.defaults)
 
 class ImportParamsCSV(ImportParamsBase):
     """CSV import parameters.
