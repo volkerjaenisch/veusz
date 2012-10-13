@@ -53,18 +53,18 @@ class OperationSettingSet(object):
     """Set a variable to a value."""
 
     descr = _('change setting')
-    
+
     def __init__(self, setting, value):
         """Set the setting to value.
         Setting may be a widget path
         """
-        
+
         if isinstance(setting, basestring):
             self.settingpath = setting
         else:
             self.settingpath = setting.path
         self.value = value
-        
+
     def do(self, document):
         """Apply setting variable."""
         setting = document.resolveFullSettingPath(self.settingpath)
@@ -73,7 +73,7 @@ class OperationSettingSet(object):
         else:
             self.oldvalue = setting.get()
         setting.set(self.value)
-        
+
     def undo(self, document):
         """Return old value back..."""
         setting = document.resolveFullSettingPath(self.settingpath)
@@ -81,11 +81,11 @@ class OperationSettingSet(object):
 
 class OperationSettingPropagate(object):
     """Propagate setting to other widgets."""
-    
+
     descr = _('propagate setting')
-    
-    def __init__(self, setting, widgetname = None, root = None,
-                 maxlevels = -1):
+
+    def __init__(self, setting, widgetname=None, root=None,
+                 maxlevels= -1):
 
         """Take the setting given, and propagate it to other widgets,
         according to the parameters here.
@@ -114,7 +114,7 @@ class OperationSettingPropagate(object):
             s = s.parent
         self.setpath = path[1:]
         self.widgettype = s.typename
-        
+
     def do(self, document):
         """Apply the setting propagation."""
         # default is root widget
@@ -122,7 +122,7 @@ class OperationSettingPropagate(object):
             root = document.basewidget
         else:
             root = document.resolveFullWidgetPath(self.rootpath)
-            
+
         # get a list of matching widgets
         widgetlist = []
         self._recursiveGet(root, self.widgetname, self.widgettype, widgetlist,
@@ -138,10 +138,10 @@ class OperationSettingPropagate(object):
 
             self.restorevals[s.path] = s.val
             s.set(self.val)
-          
+
     def undo(self, document):
         """Undo all those changes."""
-        
+
         for setpath, setval in self.restorevals.iteritems():
             setting = document.resolveFullSettingPath(setpath)
             setting.set(setval)
@@ -152,16 +152,16 @@ class OperationSettingPropagate(object):
         If name or typename are None, then ignore the criterion.
         maxlevels is the maximum number of levels to check
         """
-    
+
         if maxlevels != 0:
-    
+
             # if levels is not zero, add the children of this root
             newmaxlevels = maxlevels - 1
             for w in root.children:
-                if ( (w.name == name or name is None) and
-                     (w.typename == typename or typename is None) ):
+                if ((w.name == name or name is None) and
+                     (w.typename == typename or typename is None)):
                     outlist.append(w)
-    
+
                 OperationSettingPropagate._recursiveGet(w, name, typename,
                                                         outlist, newmaxlevels)
 
@@ -169,80 +169,80 @@ class OperationSettingPropagate(object):
 
 ###############################################################################
 # Widget operations
-        
+
 class OperationWidgetRename(object):
     """Rename widget."""
-    
+
     descr = _('rename')
-    
+
     def __init__(self, widget, newname):
         """Rename the widget to newname."""
-        
+
         self.widgetpath = widget.path
         self.newname = newname
-        
+
     def do(self, document):
         """Rename widget."""
-        
+
         widget = document.resolveFullWidgetPath(self.widgetpath)
         self.oldname = widget.name
         widget.rename(self.newname)
         self.newpath = widget.path
-        
+
     def undo(self, document):
         """Undo rename."""
-        
+
         widget = document.resolveFullWidgetPath(self.newpath)
         widget.rename(self.oldname)
-        
+
 class OperationWidgetDelete(object):
     """Delete widget."""
-    
+
     descr = _('delete')
-    
+
     def __init__(self, widget):
         """Delete the widget."""
-        
+
         self.widgetpath = widget.path
-        
+
     def do(self, document):
         """Delete widget."""
-        
+
         self.oldwidget = document.resolveFullWidgetPath(self.widgetpath)
         oldparent = self.oldwidget.parent
         self.oldwidget.parent = None
         self.oldparentpath = oldparent.path
         self.oldindex = oldparent.children.index(self.oldwidget)
         oldparent.removeChild(self.oldwidget.name)
-        
+
     def undo(self, document):
         """Restore deleted widget."""
-        
+
         oldparent = document.resolveFullWidgetPath(self.oldparentpath)
         self.oldwidget.parent = oldparent
         oldparent.addChild(self.oldwidget, index=self.oldindex)
 
 class OperationWidgetsDelete(object):
     """Delete mutliple widget."""
-    
+
     descr = _('delete')
-    
+
     def __init__(self, widgets):
         """Delete the widget."""
         self.widgetpaths = [w.path for w in widgets]
-        
+
     def do(self, document):
         """Delete widget."""
-        
+
         # ignore widgets which share ancestry
         # as deleting the parent deletes the child
         widgetpaths = list(self.widgetpaths)
-        widgetpaths.sort( cmp=lambda a, b: len(a)-len(b) )
+        widgetpaths.sort(cmp=lambda a, b: len(a) - len(b))
         i = 0
         while i < len(widgetpaths):
             wp = widgetpaths[i]
             for j in xrange(i):
-                if wp[:len(widgetpaths[j])+1] == widgetpaths[j]+'/':
+                if wp[:len(widgetpaths[j]) + 1] == widgetpaths[j] + '/':
                     del widgetpaths[i]
                     break
             else:
@@ -254,49 +254,49 @@ class OperationWidgetsDelete(object):
 
         # delete each widget keeping track of details
         for path in widgetpaths:
-            self.oldwidgets.append( document.resolveFullWidgetPath(path) )
+            self.oldwidgets.append(document.resolveFullWidgetPath(path))
             oldparent = self.oldwidgets[-1].parent
-            self.oldparentpaths.append( oldparent.path )
-            self.oldindexes.append( oldparent.children.index(self.oldwidgets[-1]) )
+            self.oldparentpaths.append(oldparent.path)
+            self.oldindexes.append(oldparent.children.index(self.oldwidgets[-1]))
             oldparent.removeChild(self.oldwidgets[-1].name)
 
     def undo(self, document):
         """Restore deleted widget."""
-        
+
         # put back widgets in reverse order so that indexes are corrent
-        for i in xrange(len(self.oldwidgets)-1,-1,-1):
+        for i in xrange(len(self.oldwidgets) - 1, -1, -1):
             oldparent = document.resolveFullWidgetPath(self.oldparentpaths[i])
             oldparent.addChild(self.oldwidgets[i], index=self.oldindexes[i])
-        
+
 class OperationWidgetMoveUpDown(object):
     """Move a widget up or down in the hierarchy."""
 
     descr = _('move')
-    
+
     def __init__(self, widget, direction):
         """Move the widget specified up or down in the hierarchy.
         
         direction is -1 for 'up' or +1 for 'down'
         """
-        
+
         self.widgetpath = widget.path
         self.direction = direction
-    
+
     def do(self, document):
         """Move the widget."""
-        
+
         widget = document.resolveFullWidgetPath(self.widgetpath)
         parent = widget.parent
         self.suceeded = parent.moveChild(widget, self.direction)
         self.newpath = widget.path
-    
+
     def undo(self, document):
         """Move it back."""
         if self.suceeded:
             widget = document.resolveFullWidgetPath(self.newpath)
             parent = widget.parent
             parent.moveChild(widget, -self.direction)
-            
+
 class OperationWidgetMove(object):
     """Move a widget arbitrarily in the hierarchy."""
 
@@ -372,9 +372,9 @@ class OperationWidgetAdd(object):
     """Add a widget of specified type to parent."""
 
     descr = _('add')
-    
+
     def __init__(self, parent, type, autoadd=True, name=None,
-                 index=-1, **defaultvals):
+                 index= -1, **defaultvals):
         """Add a widget of type given
         
         parent is the parent widget
@@ -384,20 +384,20 @@ class OperationWidgetAdd(object):
         index is position in parent to add the widget
         settings can be passed to the created widgets as optional arguments
         """
-        
+
         self.parentpath = parent.path
         self.type = type
         self.autoadd = autoadd
         self.name = name
         self.index = index
         self.defaultvals = defaultvals
-        
+
     def do(self, document):
         """Create the new widget.
         
         Returns the new widget
         """
-        
+
         parent = document.resolveFullWidgetPath(self.parentpath)
         w = widgetfactory.thefactory.makeWidget(self.type, parent,
                                                 autoadd=self.autoadd,
@@ -406,93 +406,93 @@ class OperationWidgetAdd(object):
                                                 **self.defaultvals)
         self.createdname = w.name
         return w
-        
+
     def undo(self, document):
         """Remove the added widget."""
-        
+
         parent = document.resolveFullWidgetPath(self.parentpath)
         parent.removeChild(self.createdname)
 
 ###############################################################################
 # Dataset operations
-    
+
 class OperationDatasetSet(object):
     """Set a dataset to that specified."""
-    
+
     descr = _('set dataset')
-    
+
     def __init__(self, datasetname, dataset):
         self.datasetname = datasetname
         self.dataset = dataset
-        
+
     def do(self, document):
         """Set dataset, backing up existing one."""
-    
+
         if self.datasetname in document.data:
             self.olddata = document.data[self.datasetname]
         else:
             self.olddata = None
-            
+
         document.setData(self.datasetname, self.dataset)
 
     def undo(self, document):
         """Undo the data setting."""
-        
+
         document.deleteData(self.datasetname)
         if self.olddata is not None:
             document.setData(self.datasetname, self.olddata)
-    
+
 class OperationDatasetDelete(object):
     """Delete a dateset."""
-    
+
     descr = _('delete dataset')
-    
+
     def __init__(self, datasetname):
         self.datasetname = datasetname
-    
+
     def do(self, document):
         """Remove dataset from document, but preserve for undo."""
         self.olddata = document.data[self.datasetname]
         document.deleteData(self.datasetname)
-        
+
     def undo(self, document):
         """Put dataset back"""
         document.setData(self.datasetname, self.olddata)
-    
+
 class OperationDatasetRename(object):
     """Rename the dataset.
     
     Assumes newname doesn't already exist
     """
-    
+
     descr = _('rename dataset')
-    
+
     def __init__(self, oldname, newname):
         self.oldname = oldname
         self.newname = newname
-    
+
     def do(self, document):
         """Rename dataset from oldname to newname."""
-        
+
         document.renameDataset(self.oldname, self.newname)
-        
+
     def undo(self, document):
         """Change name back."""
-        
+
         document.renameDataset(self.newname, self.oldname)
-        
+
 class OperationDatasetDuplicate(object):
     """Duplicate a dataset.
     
     Assumes duplicate name doesn't already exist
     """
-    
+
     descr = _('duplicate dataset')
-    
+
     def __init__(self, origname, duplname):
         self.origname = origname
         self.duplname = duplname
-        
+
     def do(self, document):
         """Make the duplicate"""
         self.olddata = document.data.get(self.duplname, None)
@@ -500,27 +500,27 @@ class OperationDatasetDuplicate(object):
         dataset = document.data[self.origname]
         duplicate = dataset.returnCopy()
         document.setData(self.duplname, duplicate)
-        
+
     def undo(self, document):
         """Delete the duplicate"""
-        
+
         if self.olddata is None:
             document.deleteData(self.duplname)
         else:
             document.setData(self.duplname, self.olddata)
-        
+
 class OperationDatasetUnlinkFile(object):
     """Remove association between dataset and file."""
     descr = _('unlink dataset')
-    
+
     def __init__(self, datasetname):
         self.datasetname = datasetname
-        
+
     def do(self, document):
         dataset = document.data[self.datasetname]
         self.oldfilelink = dataset.linked
         dataset.linked = None
-        
+
     def undo(self, document):
         dataset = document.data[self.datasetname]
         dataset.linked = self.oldfilelink
@@ -528,46 +528,46 @@ class OperationDatasetUnlinkFile(object):
 class OperationDatasetUnlinkRelation(object):
     """Remove association between dataset and another dataset.
     """
-    
+
     descr = _('unlink dataset')
-    
+
     def __init__(self, datasetname):
         self.datasetname = datasetname
-        
+
     def do(self, document):
         dataset = document.data[self.datasetname]
         self.olddataset = dataset
         ds = dataset.returnCopy()
         document.setData(self.datasetname, ds)
-        
+
     def undo(self, document):
         document.setData(self.datasetname, self.olddataset)
-        
+
 class OperationDatasetCreate(object):
     """Create dataset base class."""
-    
+
     def __init__(self, datasetname):
         self.datasetname = datasetname
         self.parts = {}
-        
+
     def setPart(self, part, val):
         self.parts[part] = val
-        
+
     def do(self, document):
         """Record old dataset if it exists."""
         self.olddataset = document.data.get(self.datasetname, None)
-        
+
     def undo(self, document):
         """Delete the created dataset."""
         document.deleteData(self.datasetname)
         if self.olddataset is not None:
             document.setData(self.datasetname, self.olddataset)
-        
+
 class OperationDatasetCreateRange(OperationDatasetCreate):
     """Create a dataset in a specfied range."""
-    
+
     descr = _('create dataset from range')
-    
+
     def __init__(self, datasetname, numsteps, parts, linked=False):
         """Create a dataset with numsteps values.
         
@@ -578,16 +578,16 @@ class OperationDatasetCreateRange(OperationDatasetCreate):
         self.numsteps = numsteps
         self.parts = parts
         self.linked = linked
-        
+
     def do(self, document):
         """Create dataset using range."""
-        
+
         OperationDatasetCreate.do(self, document)
         data = self.parts['data']
         serr = self.parts.get('serr', None)
         perr = self.parts.get('perr', None)
         nerr = self.parts.get('nerr', None)
-        
+
         ds = datasets.DatasetRange(self.numsteps, data, serr=serr,
                                    perr=perr, nerr=nerr)
         if not self.linked:
@@ -597,23 +597,23 @@ class OperationDatasetCreateRange(OperationDatasetCreate):
 
         document.setData(self.datasetname, ds)
         return ds
-        
+
 class CreateDatasetException(Exception):
     """Thrown by dataset creation routines."""
     pass
-        
+
 class OperationDatasetCreateParameteric(OperationDatasetCreate):
     """Create a dataset using expressions dependent on t."""
-    
+
     descr = _('create parametric dataset')
-    
+
     def __init__(self, datasetname, t0, t1, numsteps, parts, linked=False):
         """Create a parametric dataset.
         
         Variable t goes from t0 to t1 in numsteps.
         parts is a dict with keys 'data', 'serr', 'perr' and/or 'nerr'
         The values are expressions for evaluating."""
-        
+
         OperationDatasetCreate.__init__(self, datasetname)
         self.numsteps = numsteps
         self.t0 = t0
@@ -634,10 +634,10 @@ class OperationDatasetCreateParameteric(OperationDatasetCreate):
             # copy these values if we don't want to link
             ds = datasets.Dataset(data=ds.data, serr=ds.serr,
                                   perr=ds.perr, nerr=ds.nerr)
-        
+
         document.setData(self.datasetname, ds)
         return ds
-        
+
 class OperationDatasetCreateExpression(OperationDatasetCreate):
     descr = _('create dataset from expression')
 
@@ -651,7 +651,7 @@ class OperationDatasetCreateExpression(OperationDatasetCreate):
         Parametric is a tuple (min, max, numitems) if creating parametric
         datasets.
         """
-        
+
         OperationDatasetCreate.__init__(self, datasetname)
         self.parts = parts
         self.link = link
@@ -670,10 +670,10 @@ class OperationDatasetCreateExpression(OperationDatasetCreate):
             # we force an evaluation of the dataset for the first time, to
             # check for errors in the expressions
             ds.updateEvaluation()
-            
+
         except datasets.DatasetExpressionException, e:
             raise CreateDatasetException(unicode(e))
-        
+
     def do(self, document):
         """Create the dataset."""
         OperationDatasetCreate.do(self, document)
@@ -687,7 +687,7 @@ class OperationDatasetCreateExpression(OperationDatasetCreate):
             # copy these values if we don't want to link
             ds = datasets.Dataset(data=ds.data, serr=ds.serr,
                                   perr=ds.perr, nerr=ds.nerr)
-        
+
         document.setData(self.datasetname, ds)
         return ds
 
@@ -698,14 +698,14 @@ class OperationDataset2DBase(object):
         """Setup operation."""
         self.datasetname = name
         self.link = link
-    
+
     def validateExpression(self, document):
         """Validate expression is okay."""
         try:
             ds = self.makeDSClass()
             ds.document = document
             ds.evalDataset()
-            
+
         except datasets.DatasetExpressionException, e:
             raise CreateDatasetException(unicode(e))
 
@@ -732,7 +732,7 @@ class OperationDataset2DBase(object):
 
 class OperationDataset2DCreateExpressionXYZ(OperationDataset2DBase):
     descr = _('create 2D dataset from x, y and z expressions')
-    
+
     def __init__(self, datasetname, xexpr, yexpr, zexpr, link):
         OperationDataset2DBase.__init__(self, datasetname, link)
         self.xexpr = xexpr
@@ -745,7 +745,7 @@ class OperationDataset2DCreateExpressionXYZ(OperationDataset2DBase):
 
 class OperationDataset2DCreateExpression(OperationDataset2DBase):
     descr = _('create 2D dataset from expression')
-    
+
     def __init__(self, datasetname, expr, link):
         OperationDataset2DBase.__init__(self, datasetname, link)
         self.expr = expr
@@ -938,20 +938,20 @@ class OperationDataImportCSV(OperationDataImportBase):
 
     def doImport(self, document):
         """Do the data import."""
-        
+
         csvr = readcsv.ReadCSV(self.params)
         csvr.readData()
 
         LF = None
         if self.params.linked:
             LF = linked.LinkedFileCSV(self.params)
-        
+
         # set the data
         self.outdatasets = csvr.setData(document, linkedfile=LF)
 
 class OperationDataImport2D(OperationDataImportBase):
     """Import a 2D matrix from a file."""
-    
+
     descr = _('import 2d data')
 
     def doImport(self, document):
@@ -962,7 +962,7 @@ class OperationDataImport2D(OperationDataImportBase):
         # get stream
         if p.filename is not None:
             stream = simpleread.FileStream(
-                utils.openEncoding(p.filename, p.encoding) )
+                utils.openEncoding(p.filename, p.encoding))
         elif p.datastr is not None:
             stream = simpleread.StringStream(p.datastr)
         else:
@@ -983,7 +983,7 @@ class OperationDataImportFITS(OperationDataImportBase):
     """Import 1d or 2d data from a fits file."""
 
     descr = _('import FITS file')
-    
+
     def _import1d(self, hdu):
         """Import 1d data from hdu."""
 
@@ -1015,9 +1015,9 @@ class OperationDataImportFITS(OperationDataImportBase):
         """Import 2d image data from hdu."""
 
         p = self.params
-        if ( p.datacol is not None or p.symerrcol is not None
+        if (p.datacol is not None or p.symerrcol is not None
              or p.poserrcol is not None
-             or p.negerrcol is not None ):
+             or p.negerrcol is not None):
             print "Warning: ignoring columns as import 2D dataset"
 
         header = hdu.header
@@ -1028,10 +1028,10 @@ class OperationDataImportFITS(OperationDataImportBase):
             wcs = [header[i] for i in ('CRVAL1', 'CRPIX1', 'CDELT1',
                                        'CRVAL2', 'CRPIX2', 'CDELT2')]
 
-            rangex = ( (data.shape[1]-wcs[1])*wcs[2] + wcs[0],
-                       (0-wcs[1])*wcs[2] + wcs[0])
-            rangey = ( (0-wcs[4])*wcs[5] + wcs[3],
-                       (data.shape[0]-wcs[4])*wcs[5] + wcs[3] )
+            rangex = ((data.shape[1] - wcs[1]) * wcs[2] + wcs[0],
+                       (0 - wcs[1]) * wcs[2] + wcs[0])
+            rangey = ((0 - wcs[4]) * wcs[5] + wcs[3],
+                       (data.shape[0] - wcs[4]) * wcs[5] + wcs[3])
 
             rangex = (rangex[1], rangex[0])
 
@@ -1048,11 +1048,11 @@ class OperationDataImportFITS(OperationDataImportBase):
         try:
             import pyfits
         except ImportError:
-            raise RuntimeError, ( 'PyFITS is required to import '
-                                  'data from FITS files' )
+            raise RuntimeError, ('PyFITS is required to import '
+                                  'data from FITS files')
 
         p = self.params
-        f = pyfits.open( str(p.filename), 'readonly')
+        f = pyfits.open(str(p.filename), 'readonly')
         hdu = f[p.hdu]
 
         try:
@@ -1101,7 +1101,7 @@ class OperationDataImportPlugin(OperationDataImportBase):
 
         # stick back together the plugin parameter object
         plugparams = plugins.ImportPluginParams(
-            p.filename, p.encoding,  p.pluginpars)
+            p.filename, p.encoding, p.pluginpars)
         results = plugin.doImport(plugparams)
 
         # make link for file
@@ -1125,10 +1125,10 @@ class OperationDataImportPlugin(OperationDataImportBase):
             elif isinstance(d, plugins.DatasetDateTime):
                 ds = datasets.DatasetDateTime(data=d.data)
             elif isinstance(d, plugins.Constant):
-                customs.append( ['constant', d.name, d.val] )
+                customs.append(['constant', d.name, d.val])
                 continue
             elif isinstance(d, plugins.Function):
-                customs.append( ['function', d.name, d.val] )
+                customs.append(['function', d.name, d.val])
                 continue
             else:
                 raise RuntimeError("Invalid data set in plugin results")
@@ -1168,7 +1168,7 @@ class OperationDataCaptureSet(object):
         """Set the data in the document."""
         # before replacing data, get a backup of document's data
         databackup = dict(document.data)
-        
+
         # set the data to the document and keep a list of what's changed
         self.nameschanged = self.simplereadobject.setInDocument(document)
 
@@ -1270,14 +1270,14 @@ class OperationDatasetSetVal(object):
     """Set a value in the dataset."""
 
     descr = _('change dataset value')
-    
+
     def __init__(self, datasetname, columnname, row, val):
         """Set row in column columnname to val."""
         self.datasetname = datasetname
         self.columnname = columnname
         self.row = row
         self.val = val
-        
+
     def do(self, document):
         """Set the value."""
         ds = document.data[self.datasetname]
@@ -1292,7 +1292,7 @@ class OperationDatasetSetVal(object):
         datacol = getattr(ds, self.columnname)
         datacol[self.row] = self.oldval
         ds.changeValues(self.columnname, datacol)
-    
+
 class OperationDatasetSetVal2D(object):
     """Set a value in a 2D dataset."""
 
@@ -1322,13 +1322,13 @@ class OperationDatasetDeleteRow(object):
     """Delete a row or several in the dataset."""
 
     descr = _('delete dataset row')
-    
+
     def __init__(self, datasetname, row, numrows=1):
         """Delete a row in a dataset."""
         self.datasetname = datasetname
         self.row = row
         self.numrows = numrows
-        
+
     def do(self, document):
         """Set the value."""
         ds = document.data[self.datasetname]
@@ -1343,13 +1343,13 @@ class OperationDatasetInsertRow(object):
     """Insert a row or several in the dataset."""
 
     descr = _('insert dataset row')
-    
+
     def __init__(self, datasetname, row, numrows=1):
         """Delete a row in a dataset."""
         self.datasetname = datasetname
         self.row = row
         self.numrows = numrows
-        
+
     def do(self, document):
         """Set the value."""
         ds = document.data[self.datasetname]
@@ -1380,7 +1380,7 @@ class OperationSetCustom(object):
         self.oldval = list(document.customs)
         document.customs = self.customvals
         document.updateEvalContext()
-        
+
     def undo(self, document):
         """Restore custom object."""
         document.customs = self.oldval
@@ -1388,10 +1388,10 @@ class OperationSetCustom(object):
 
 ###############################################################################
 # Misc operations
-        
+
 class OperationMultiple(object):
     """Multiple operations batched into one."""
-    
+
     def __init__(self, operations, descr='change'):
         """A batch operation made up of the operations in list.
         
@@ -1400,33 +1400,33 @@ class OperationMultiple(object):
         self.operations = operations
         if descr:
             self.descr = descr
-        
+
     def addOperation(self, op):
         """Add an operation to the list of operations."""
         self.operations.append(op)
-        
+
     def do(self, document):
         """Do the multiple operations."""
         for op in self.operations:
             op.do(document)
-            
+
     def undo(self, document):
         """Undo the multiple operations."""
-        
+
         # operations need to undone in reverse order
         for op in self.operations[::-1]:
             op.undo(document)
 
 class OperationLoadStyleSheet(OperationMultiple):
     """An operation to load a stylesheet."""
-    
+
     descr = _('load stylesheet')
 
     def __init__(self, filename):
         """Load stylesheet with filename."""
         OperationMultiple.__init__(self, [], descr=None)
         self.filename = os.path.abspath(filename)
-        
+
     def do(self, document):
         """Do the import."""
 
@@ -1438,24 +1438,24 @@ class OperationLoadStyleSheet(OperationMultiple):
         # fire up interpreter to read file
         interpreter = commandinterpreter.CommandInterpreter(document)
         try:
-            interpreter.runFile( open(self.filename) )
+            interpreter.runFile(open(self.filename))
         except:
             document.batchHistory(None)
             raise
-        
+
 class OperationLoadCustom(OperationLoadStyleSheet):
     descr = _('load custom definitions')
 
 class OperationToolsPlugin(OperationMultiple):
     """An operation to represent what a tools plugin does."""
-    
+
     def __init__(self, plugin, fields):
         """Use tools plugin, passing fields."""
         OperationMultiple.__init__(self, [], descr=None)
         self.plugin = plugin
         self.fields = fields
         self.descr = plugin.name
-        
+
     def do(self, document):
         """Use the plugin."""
 
@@ -1475,14 +1475,14 @@ class OperationToolsPlugin(OperationMultiple):
 
 class OperationDatasetPlugin(object):
     """An operation to activate a dataset plugin."""
-    
+
     def __init__(self, plugin, fields, datasetnames={}):
         """Use dataset plugin, passing fields."""
         self.plugin = plugin
         self.fields = fields
         self.descr = plugin.name
         self.names = datasetnames
-        
+
     def do(self, document):
         """Use the plugin.
         """

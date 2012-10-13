@@ -20,6 +20,8 @@
 
 import veusz.qtall as qt4
 from veusz.document.operations import OperationDataImportBase
+from veusz.document import simpleread
+
 import reader
 from veusz import utils
 import linked
@@ -50,10 +52,10 @@ class OperationDataImport(OperationDataImportBase):
         p = self.params
         # open stream to import data from
         if p.filename is not None:
-            stream = reader.FileStream(
+            stream = simpleread.FileStream(
                 utils.openEncoding(p.filename, p.encoding))
         elif p.datastr is not None:
-            stream = reader.StringStream(p.datastr)
+            stream = simpleread.StringStream(p.datastr)
         else:
             raise RuntimeError, "No filename or string"
 
