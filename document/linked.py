@@ -155,29 +155,6 @@ class LinkedFileFITS(LinkedFileBase):
 
         fileobj.write("ImportFITSFile(%s)\n" % ", ".join(args))
 
-class LinkedFileCSV(LinkedFileBase):
-    """A CSV file linked to datasets."""
-
-    def createOperation(self):
-        """Return operation to recreate self."""
-        import operations
-        return operations.OperationDataImportCSV
-
-    def saveToFile(self, fileobj, relpath=None):
-        """Save the link to the document file."""
-
-        paramsout = [ repr(self._getSaveFilename(relpath)) ]
-
-        # add parameters which aren"t defaults
-        for param, default in sorted(self.params.defaults.items()):
-            v = getattr(self.params, param)
-            if param == 'prefix' or param == 'suffix':
-                param = 'ds' + param
-            if param != 'filename' and param != 'tags' and v != default:
-                paramsout.append("%s=%s" % (param, repr(v)))
-
-        fileobj.write("ImportFileCSV(%s)\n" % (", ".join(paramsout)))
-
 class LinkedFilePlugin(LinkedFileBase):
     """Represent a file linked using an import plugin."""
 

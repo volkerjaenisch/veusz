@@ -25,6 +25,8 @@ import veusz.qtall as qt4
 from veuszdialog import VeuszDialog
 
 from veusz.formats.standard.import_standard import ImportTabStandard
+from veusz.formats.csv.dialog import ImportTabCSV
+
 from importtab import *
 
 def _(text, disambiguation=None, context="ImportDialog"):

@@ -65,39 +65,6 @@ class ImportParamsBase(object):
         return self.__class__(**newp)
 
 
-class ImportParamsCSV(ImportParamsBase):
-    """CSV import parameters.
-
-    additional parameters:
-     readrows: readdata in rows
-     delimiter: CSV delimiter
-     textdelimiter: delimiter for text
-     headerignore: number of lines to ignore after headers
-     rowsignore: number of lines to ignore at top fo file
-     blanksaredata: treat blank entries as nans
-     numericlocale: name of local for numbers
-     dateformat: date format string
-     headermode: 'multi', '1st' or 'none'
-    """
-
-    defaults = {
-        'readrows': False,
-        'delimiter': ',',
-        'textdelimiter': '"',
-        'headerignore': 0,
-        'rowsignore': 0,
-        'blanksaredata': False,
-        'numericlocale': 'en_US',
-        'dateformat': 'YYYY-MM-DD|T|hh:mm:ss',
-        'headermode': 'multi',
-        }
-    defaults.update(ImportParamsBase.defaults)
-
-    def __init__(self, **argsv):
-        ImportParamsBase.__init__(self, **argsv)
-        if self.headermode not in ('multi', '1st', 'none'):
-            raise ValueError, "Invalid headermode"
-
 class ImportParams2D(ImportParamsBase):
     """2D import parameters.
 

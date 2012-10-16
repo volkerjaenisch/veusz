@@ -931,23 +931,6 @@ class OperationDataImport(OperationDataImportBase):
             document, linkedfile=LF, prefix=p.prefix, suffix=p.suffix)
         self.outinvalids = self.simpleread.getInvalidConversions()
 
-class OperationDataImportCSV(OperationDataImportBase):
-    """Import data from a CSV file."""
-
-    descr = _('import CSV data')
-
-    def doImport(self, document):
-        """Do the data import."""
-
-        csvr = readcsv.ReadCSV(self.params)
-        csvr.readData()
-
-        LF = None
-        if self.params.linked:
-            LF = linked.LinkedFileCSV(self.params)
-
-        # set the data
-        self.outdatasets = csvr.setData(document, linkedfile=LF)
 
 class OperationDataImport2D(OperationDataImportBase):
     """Import a 2D matrix from a file."""
