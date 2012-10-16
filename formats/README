@@ -1,0 +1,35 @@
+Whitepaper : Veusz modular import dialog plugins TODO: Find better name.
+
+Vuesz features a plugin system for generic import dialogs. This feature was not designed
+to allow for writing import dialogs for complex data formats like netCDF oder HDF5.
+
+The idea of "Veusz modular import dialog plugins" is to build a 
+plugin system that allows programmers to extend Veusz by complex import dialogs
+which may come with a custom QT-design, without changing the code of veusz.
+
+Strating Point:
+=============== 
+The components of a single import dialog are spread over the following files:
+- dialogs/importdialog.py
+- dokument/importparams.py
+- dokument/linked.py
+- dokument/operations.py
+- dokument/simpleread.py
+
+
+Project steps:
+==============
+To achieve the goal of a new plugin structure the following steps have to be done:
+1 Proove of Concept: Isolation of the code for the standard import dialog into a seperate code structure
+2 Review of the new code structure by jeremy
+3 Migration of all import dialogs into the new code structure
+4 Analysis of the outcome and problems  
+5 Design of an API for the creation of import dialogs to decouple the plugin code from core code
+6 Integrate the import dialogs into the new API
+
+Current status:
+===============
+Steps 1 and 2 have been done and no problems have occured that may stand against the 
+current project idea.
+
+
