@@ -932,35 +932,6 @@ class OperationDataImport(OperationDataImportBase):
         self.outinvalids = self.simpleread.getInvalidConversions()
 
 
-class OperationDataImport2D(OperationDataImportBase):
-    """Import a 2D matrix from a file."""
-
-    descr = _('import 2d data')
-
-    def doImport(self, document):
-        """Import data."""
-
-        p = self.params
-
-        # get stream
-        if p.filename is not None:
-            stream = simpleread.FileStream(
-                utils.openEncoding(p.filename, p.encoding))
-        elif p.datastr is not None:
-            stream = simpleread.StringStream(p.datastr)
-        else:
-            assert False
-
-        # linked file
-        LF = None
-        if p.linked:
-            assert p.filename
-            LF = linked.LinkedFile2D(p)
-
-        for name in p.datasetnames:
-            sr = simpleread.SimpleRead2D(name, p)
-            sr.readData(stream)
-            self.outdatasets += sr.setInDocument(document, linkedfile=LF)
 
 class OperationDataImportFITS(OperationDataImportBase):
     """Import 1d or 2d data from a fits file."""

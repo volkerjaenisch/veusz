@@ -26,9 +26,10 @@ from veusz.dialogs.importtab import ImportTab
 import veusz.qtall as qt4
 from veusz.dialogs.veuszdialog import VeuszDialog
 from veusz import utils
-from params import ImportParamsSimple
-from operations import OperationDataImport
-import reader
+
+from veusz.formats.standard import params
+from veusz.formats.standard import operations
+from veusz.formats.standard import reader
 
 class ImportTabStandard(ImportTab):
     """Standard import format tab."""
@@ -82,7 +83,7 @@ class ImportTabStandard(ImportTab):
         useblocks = self.blockcheckbox.isChecked()
         ignoretext = self.ignoretextcheckbox.isChecked()
 
-        params = ImportParamsSimple(
+        parameters = params.ImportParamsSimple(
             descriptor=descriptor,
             filename=filename,
             useblocks=useblocks,
@@ -95,7 +96,7 @@ class ImportTabStandard(ImportTab):
 
         try:
             # construct operation. this checks the descriptor.
-            op = OperationDataImport(params)
+            op = operations.OperationDataImport(parameters)
 
         except reader.DescriptorError:
             qt4.QMessageBox.warning(self, _("Veusz"),

@@ -27,9 +27,10 @@ from veusz.dialogs.importtab import ImportTab
 import veusz.qtall as qt4
 from veusz.dialogs.veuszdialog import VeuszDialog
 from veusz import utils
-import params
-import operations
-import reader
+
+from veusz.formats.csv import params
+from veusz.formats.csv import operations
+from veusz.formats.csv import reader
 
 def _(text, disambiguation=None, context="ImportDialog"):
     """Translate text."""
@@ -43,7 +44,11 @@ class ImportTabCSV(ImportTab):
 
     def loadUi(self):
         """Load user interface and setup panel."""
-        ImportTab.loadUi(self)
+        #TODO: Find better solution for importing the resource file
+        qt4.loadUi(os.path.join(utils.veuszDirectory, 'formats', 'csv',
+                                self.resource), self)
+        self.uiloaded = True
+
         self.connect(self.csvhelpbutton, qt4.SIGNAL('clicked()'),
                       self.slotHelp)
         self.connect(self.csvdelimitercombo,

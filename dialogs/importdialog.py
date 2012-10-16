@@ -26,6 +26,7 @@ from veuszdialog import VeuszDialog
 
 from veusz.formats.standard.dialog import ImportTabStandard
 from veusz.formats.csv.dialog import ImportTabCSV
+from veusz.formats.data2d.dialog import ImportTab2D
 
 from importtab import *
 
