@@ -39,7 +39,7 @@ def _(text, disambiguation=None, context="ImportDialog"):
 class ImportTabCSV(ImportTab):
     """For importing data from CSV files."""
 
-    resource = 'import_csv.ui'
+    resource = 'dialog.ui'
 
     def loadUi(self):
         """Load user interface and setup panel."""

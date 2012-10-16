@@ -65,29 +65,6 @@ class ImportParamsBase(object):
         return self.__class__(**newp)
 
 
-class ImportParams2D(ImportParamsBase):
-    """2D import parameters.
-
-    additional parameters:
-     datastr: text to read from instead of file
-     xrange: tuple with range of x data coordinates
-     yrange: tuple with range of y data coordinates
-     invertrows: invert rows when reading
-     invertcols: invert columns when reading
-     transpose: swap rows and columns
-    """
-
-    defaults = {
-        'datasetnames': None,
-        'datastr': None,
-        'xrange': None,
-        'yrange': None,
-        'invertrows': False,
-        'invertcols': False,
-        'transpose': False,
-        }
-    defaults.update(ImportParamsBase.defaults)
-
 class ImportParamsFITS(ImportParamsBase):
     """FITS file import parameters.
 
