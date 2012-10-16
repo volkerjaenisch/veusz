@@ -110,28 +110,3 @@ class LinkedFileBase(object):
 
 
 
-class LinkedFilePlugin(LinkedFileBase):
-    """Represent a file linked using an import plugin."""
-
-    def createOperation(self):
-        """Return operation to recreate self."""
-        import operations
-        return operations.OperationDataImportPlugin
-
-    def saveToFile(self, fileobj, relpath=None):
-        """Save the link to the vsz document file."""
-
-        p = self.params
-        params = [repr(p.plugin),
-                  repr(self._getSaveFilename(relpath)),
-                  "linked=True"]
-        if p.encoding != "utf_8":
-            params.append("encoding=" + repr(p.encoding))
-        if p.prefix:
-            params.append("prefix=" + repr(p.prefix))
-        if p.suffix:
-            params.append("suffix=" + repr(p.suffix))
-        for name, val in p.pluginpars.iteritems():
-            params.append("%s=%s" % (name, repr(val)))
-
-        fileobj.write("ImportFilePlugin(%s)\n" % (", ".join(params)))

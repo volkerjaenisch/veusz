@@ -65,31 +65,3 @@ class ImportParamsBase(object):
         return self.__class__(**newp)
 
 
-class ImportParamsPlugin(ImportParamsBase):
-    """Parameters for import plugins.
-
-    Additional parameter:
-     plugin: name of plugin
-
-    Plugins have their own parameters."""
-
-    defaults = {
-        'plugin': None,
-        }
-    defaults.update(ImportParamsBase.defaults)
-
-    def __init__(self, **argsv):
-        """Initialise plugin parameters, splitting up default parameters
-        and plugin parameters."""
-
-        pluginpars = {}
-        upvars = {}
-        for n, v in argsv.iteritems():
-            if n in self.defaults:
-                upvars[n] = v
-            else:
-                pluginpars[n] = v
-
-        ImportParamsBase.__init__(self, **upvars)
-        self.pluginpars = pluginpars
-        self._extras.append('pluginpars')

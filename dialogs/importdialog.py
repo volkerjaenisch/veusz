@@ -19,15 +19,20 @@
 ##############################################################################
 
 """Module for implementing dialog boxes for importing data in Veusz."""
-
+import sys
 import veusz.qtall as qt4
 
 from veuszdialog import VeuszDialog
+from veusz import plugins
+from veusz import setting
+import exceptiondialog
+
 
 from veusz.formats.csv.dialog import ImportTabCSV
 from veusz.formats.data2d.dialog import ImportTab2D
 from veusz.formats.standard.dialog import ImportTabStandard
 from veusz.formats.fits.dialog import ImportTabFITS
+from veusz.formats.simple_plugins.dialog import ImportTabPlugins
 
 from importtab import *
 
