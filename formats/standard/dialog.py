@@ -56,6 +56,7 @@ class ImportTabStandard(ImportTab):
 
     def slotHelp(self):
         """Asked for help."""
+        # TODO: Migrate this dialog into the CSV plugin
         d = VeuszDialog(self.dialog.mainwindow, 'importhelp.ui')
         self.dialog.mainwindow.showDialog(d)
 

@@ -40,11 +40,13 @@ class VeuszDialog(qt4.QDialog):
             flag |= (
                 qt4.Qt.CustomizeWindowHint | qt4.Qt.WindowMinimizeButtonHint |
                 qt4.Qt.WindowMaximizeButtonHint | qt4.Qt.WindowCloseButtonHint |
-                qt4.Qt.WindowTitleHint | qt4.Qt.WindowSystemMenuHint )
+                qt4.Qt.WindowTitleHint | qt4.Qt.WindowSystemMenuHint)
 
         qt4.QDialog.__init__(self, mainwindow, flag)
         self.setAttribute(qt4.Qt.WA_DeleteOnClose)
 
+        # TODO: This ist to hard wired and should be relaxed. E.g. if uifile 
+        # starts with "/" then use it directly
         qt4.loadUi(os.path.join(utils.veuszDirectory, 'dialogs', uifile),
                    self)
 
@@ -53,5 +55,5 @@ class VeuszDialog(qt4.QDialog):
     def hideEvent(self, event):
         """Emits dialogFinished if hidden."""
         if not event.spontaneous():
-            self.emit( qt4.SIGNAL('dialogFinished'), self )
+            self.emit(qt4.SIGNAL('dialogFinished'), self)
         return qt4.QDialog.hideEvent(self, event)
