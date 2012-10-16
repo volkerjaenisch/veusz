@@ -26,14 +26,14 @@ from veusz.dialogs.importtab import ImportTab
 import veusz.qtall as qt4
 from veusz.dialogs.veuszdialog import VeuszDialog
 from veusz import utils
-from import_params import ImportParamsSimple
+from params import ImportParamsSimple
 from operations import OperationDataImport
 import reader
 
 class ImportTabStandard(ImportTab):
     """Standard import format tab."""
 
-    resource = 'import_standard.ui'
+    resource = 'dialog.ui'
 
     def loadUi(self):
         """Load widget and setup controls."""
