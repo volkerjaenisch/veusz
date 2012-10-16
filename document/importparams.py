@@ -65,28 +65,6 @@ class ImportParamsBase(object):
         return self.__class__(**newp)
 
 
-class ImportParamsFITS(ImportParamsBase):
-    """FITS file import parameters.
-
-    Additional parameters:
-     dsname: name of dataset
-     hdu: name/number of hdu
-     datacol: name of column
-     symerrcol: symmetric error column
-     poserrcol: positive error column
-     negerrcol: negative error column
-    """
-
-    defaults = {
-        'dsname': None,
-        'hdu': None,
-        'datacol': None,
-        'symerrcol': None,
-        'poserrcol': None,
-        'negerrcol': None,
-        }
-    defaults.update(ImportParamsBase.defaults)
-
 class ImportParamsPlugin(ImportParamsBase):
     """Parameters for import plugins.
 

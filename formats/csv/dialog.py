@@ -18,7 +18,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""Dialog box for standard import."""
+"""Dialog box for CSV import."""
 
 import csv
 import os.path

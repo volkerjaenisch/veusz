@@ -110,30 +110,6 @@ class LinkedFileBase(object):
 
 
 
-class LinkedFileFITS(LinkedFileBase):
-    """Links a FITS file to the data."""
-
-    def createOperation(self):
-        """Return operation to recreate self."""
-        import operations
-        return operations.OperationDataImportFITS
-
-    def saveToFile(self, fileobj, relpath=None):
-        """Save the link to the document file."""
-
-        p = self.params
-        args = [p.dsname, self._getSaveFilename(relpath), p.hdu]
-        args = [repr(i) for i in args]
-        for param, column in (("datacol", p.datacol),
-                               ("symerrcol", p.symerrcol),
-                               ("poserrcol", p.poserrcol),
-                               ("negerrcol", p.negerrcol)):
-            if column is not None:
-                args.append("%s=%s" % (param, repr(column)))
-        args.append("linked=True")
-
-        fileobj.write("ImportFITSFile(%s)\n" % ", ".join(args))
-
 class LinkedFilePlugin(LinkedFileBase):
     """Represent a file linked using an import plugin."""
 

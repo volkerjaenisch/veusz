@@ -24,9 +24,10 @@ import veusz.qtall as qt4
 
 from veuszdialog import VeuszDialog
 
-from veusz.formats.standard.dialog import ImportTabStandard
 from veusz.formats.csv.dialog import ImportTabCSV
 from veusz.formats.data2d.dialog import ImportTab2D
+from veusz.formats.standard.dialog import ImportTabStandard
+from veusz.formats.fits.dialog import ImportTabFITS
 
 from importtab import *
 

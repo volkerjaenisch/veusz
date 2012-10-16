@@ -16,7 +16,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""This module contains routines for importing CSV data files
+"""This module contains routines for importing 2d data files
 in an easy-to-use manner."""
 
 import numpy as N

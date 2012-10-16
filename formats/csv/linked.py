@@ -17,7 +17,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ###############################################################################
 
-"""linked text files"""
+"""linked CSV files"""
 
 from veusz.document.linked import LinkedFileBase
 

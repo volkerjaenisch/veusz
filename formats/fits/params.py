@@ -18,29 +18,28 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""params for 2d data import dialog."""
+"""params for FITS data import dialog."""
 
 from veusz.document.importparams import ImportParamsBase
 
-class ImportParams2D(ImportParamsBase):
-    """2D import parameters.
+class ImportParamsFITS(ImportParamsBase):
+    """FITS file import parameters.
 
-    additional parameters:
-     datastr: text to read from instead of file
-     xrange: tuple with range of x data coordinates
-     yrange: tuple with range of y data coordinates
-     invertrows: invert rows when reading
-     invertcols: invert columns when reading
-     transpose: swap rows and columns
+    Additional parameters:
+     dsname: name of dataset
+     hdu: name/number of hdu
+     datacol: name of column
+     symerrcol: symmetric error column
+     poserrcol: positive error column
+     negerrcol: negative error column
     """
 
     defaults = {
-        'datasetnames': None,
-        'datastr': None,
-        'xrange': None,
-        'yrange': None,
-        'invertrows': False,
-        'invertcols': False,
-        'transpose': False,
+        'dsname': None,
+        'hdu': None,
+        'datacol': None,
+        'symerrcol': None,
+        'poserrcol': None,
+        'negerrcol': None,
         }
     defaults.update(ImportParamsBase.defaults)

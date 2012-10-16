@@ -1,6 +1,4 @@
-# params for standard data import dialog
-
-#    Copyright (C) 2004 Jeremy S. Sanders
+#    Copyright (C) 2008 Jeremy S. Sanders
 #    Email: Jeremy Sanders <jeremy@jeremysanders.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,29 +16,5 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""params for 2d data import dialog."""
+"""file format modules."""
 
-from veusz.document.importparams import ImportParamsBase
-
-class ImportParams2D(ImportParamsBase):
-    """2D import parameters.
-
-    additional parameters:
-     datastr: text to read from instead of file
-     xrange: tuple with range of x data coordinates
-     yrange: tuple with range of y data coordinates
-     invertrows: invert rows when reading
-     invertcols: invert columns when reading
-     transpose: swap rows and columns
-    """
-
-    defaults = {
-        'datasetnames': None,
-        'datastr': None,
-        'xrange': None,
-        'yrange': None,
-        'invertrows': False,
-        'invertcols': False,
-        'transpose': False,
-        }
-    defaults.update(ImportParamsBase.defaults)

@@ -18,7 +18,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""Dialog box for standard import."""
+"""Dialog box for 2d import."""
 
 import csv
 import os.path
@@ -26,7 +26,6 @@ import re
 
 from veusz.dialogs.importtab import ImportTab
 import veusz.qtall as qt4
-from veusz.dialogs.veuszdialog import VeuszDialog
 from veusz import utils
 
 from veusz.formats.data2d import params

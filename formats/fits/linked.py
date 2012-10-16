@@ -17,28 +17,31 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ###############################################################################
 
-"""linked 2d files"""
+"""linked FITS files"""
 
 from veusz.document.linked import LinkedFileBase
 
-class LinkedFile2D(LinkedFileBase):
-    """Class representing a file linked to a 2d dataset."""
+class LinkedFileFITS(LinkedFileBase):
+    """Links a FITS file to the data."""
 
     def createOperation(self):
         """Return operation to recreate self."""
         import operations
-        return operations.OperationDataImport2D
+        return operations.OperationDataImportFITS
 
     def saveToFile(self, fileobj, relpath=None):
         """Save the link to the document file."""
 
-        args = [ repr(self._getSaveFilename(relpath)),
-                 repr(self.params.datasetnames) ]
-        for par in ("xrange", "yrange", "invertrows", "invertcols", "transpose",
-                    "prefix", "suffix", "encoding"):
-            v = getattr(self.params, par)
-            if v is not None and v != "" and v != self.params.defaults[par]:
-                args.append("%s=%s" % (par, repr(v)))
+        p = self.params
+        args = [p.dsname, self._getSaveFilename(relpath), p.hdu]
+        args = [repr(i) for i in args]
+        for param, column in (("datacol", p.datacol),
+                               ("symerrcol", p.symerrcol),
+                               ("poserrcol", p.poserrcol),
+                               ("negerrcol", p.negerrcol)):
+            if column is not None:
+                args.append("%s=%s" % (param, repr(column)))
         args.append("linked=True")
 
-        fileobj.write("ImportFile2D(%s)\n" % ", ".join(args))
+        fileobj.write("ImportFITSFile(%s)\n" % ", ".join(args))
+

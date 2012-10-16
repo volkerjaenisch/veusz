@@ -16,15 +16,15 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ###############################################################################
 
-"""Operations for text file import"""
+"""Operations for 2d file import"""
 
 import veusz.qtall as qt4
 from veusz.document.operations import OperationDataImportBase
 from veusz.document import simpleread
-
-import reader
-import linked
 from veusz import utils
+
+from veusz.formats.data2d import linked
+from veusz.formats.data2d import reader
 
 def _(text, disambiguation=None, context="Operations"):
     """Translate text."""

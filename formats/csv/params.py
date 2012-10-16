@@ -18,7 +18,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""params for standard data import dialog."""
+"""params for CSV data import dialog."""
 
 from veusz.document.importparams import ImportParamsBase
 
