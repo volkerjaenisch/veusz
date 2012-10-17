@@ -1,6 +1,6 @@
 # commandinterface.py
 # this module supplies the command line interface for plotting
- 
+
 #    Copyright (C) 2004 Jeremy S. Sanders
 #    Email: Jeremy Sanders <jeremy@jeremysanders.net>
 #
@@ -28,14 +28,16 @@ import os.path
 import traceback
 
 import veusz.qtall as qt4
-import veusz.setting as setting
-import veusz.embed as embed
-import veusz.plugins as plugins
-import veusz.utils as utils
+from veusz import setting
+from veusz import embed
+from veusz import plugins
+from veusz import utils
+from veusz.document import operations
 
-import importparams
+
+#import importparams
 import datasets
-import operations
+from veusz.document.operations import OperationWidgetAdd, OperationSetCustom
 import dataset_histo
 import mime
 import export
@@ -92,7 +94,7 @@ class CommandInterface(qt4.QObject):
 
     # commands which can modify disk, etc
     unsafe_commands = (
-        'Export',        
+        'Export',
         'Print',
         'Save',
         )
@@ -106,8 +108,8 @@ class CommandInterface(qt4.QObject):
         self.verbose = False
         self.importpath = []
 
-        self.connect( self.document, qt4.SIGNAL("sigWiped"),
-                      self.slotWipedDoc )
+        self.connect(self.document, qt4.SIGNAL("sigWiped"),
+                      self.slotWipedDoc)
 
         self.Root = embed.WidgetNode(self, 'widget', '/')
 
@@ -148,7 +150,7 @@ class CommandInterface(qt4.QObject):
             at = self.document.resolve(self.currentwidget, args_opt['widget'])
             del args_opt['widget']
 
-        op = operations.OperationWidgetAdd(at, widgettype, **args_opt)
+        op = OperationWidgetAdd(at, widgettype, **args_opt)
         w = self.document.applyOperation(op)
 
         if self.verbose:
@@ -191,7 +193,7 @@ class CommandInterface(qt4.QObject):
         if ctype not in ('constant', 'import', 'function', 'colormap'):
             raise RuntimeError, 'Invalid type'
 
-        vals = list( self.document.customs )
+        vals = list(self.document.customs)
         item = [ctype, name, val]
         if mode == 'appendalways':
             vals.append(item)
@@ -209,7 +211,7 @@ class CommandInterface(qt4.QObject):
                 # no existing item, so append
                 vals.append(item)
 
-        op = operations.OperationSetCustom(vals)
+        op = OperationSetCustom(vals)
         self.document.applyOperation(op)
 
     def AddImportPath(self, directory):
@@ -234,7 +236,7 @@ class CommandInterface(qt4.QObject):
 
     def CreateHistogram(self, inexpr, outbinsds, outvalsds, binparams=None,
                         binmanual=None, method='counts',
-                        cumulative = 'none', errors=False):
+                        cumulative='none', errors=False):
         """Histogram an input expression.
 
         inexpr is input expression
@@ -265,6 +267,7 @@ class CommandInterface(qt4.QObject):
         datasetnames: dict mapping old names to new names of datasets
         if they are renamed. The new name None means dataset is deleted."""
 
+
         # lookup plugin (urgh)
         plugin = None
         for pkls in plugins.datasetpluginregistry:
@@ -275,8 +278,7 @@ class CommandInterface(qt4.QObject):
             raise RuntimeError, "Cannot find dataset plugin '%s'" % pluginname
 
         # do the work
-        op = operations.OperationDatasetPlugin(plugin, fields,
-                                               datasetnames=datasetnames)
+        op = operations.OperationDatasetPlugin(plugin, fields, datasetnames=datasetnames)
         outdatasets = self.document.applyOperation(op)
 
         if self.verbose:
@@ -293,7 +295,7 @@ class CommandInterface(qt4.QObject):
 
     def RemoveCustom(self, name):
         """Removes a custom-defined constant, function or import."""
-        vals = list( self.document.customs )
+        vals = list(self.document.customs)
         for i, (t, n, v) in enumerate(vals):
             if n == name:
                 del vals[i]
@@ -336,8 +338,8 @@ class CommandInterface(qt4.QObject):
     def GetChildren(self, where='.'):
         """Return a list of widgets which are children of the widget of the
         path given."""
-        return list( self.document.resolve(self.currentwidget,
-                                           where).childnames )
+        return list(self.document.resolve(self.currentwidget,
+                                           where).childnames)
 
     def GetDatasets(self):
         """Return a list of names of datasets."""
@@ -370,10 +372,10 @@ class CommandInterface(qt4.QObject):
 
         op = operations.OperationSettingSet(pref, val)
         self.document.applyOperation(op)
-        
+
         if self.verbose:
-            print ( "Set setting '%s' to %s" %
-                    (var, repr(pref.get())) )
+            print ("Set setting '%s' to %s" %
+                    (var, repr(pref.get())))
 
     def SetToReference(self, var, val):
         """Set setting to a reference value."""
@@ -381,10 +383,10 @@ class CommandInterface(qt4.QObject):
         pref = self.currentwidget.prefLookup(var)
         op = operations.OperationSettingSet(pref, setting.Reference(val))
         self.document.applyOperation(op)
-        
+
         if self.verbose:
-            print ( "Set setting '%s' to %s" %
-                    (var, repr(pref.get())) )
+            print ("Set setting '%s' to %s" %
+                    (var, repr(pref.get())))
 
     def SetData(self, name, val, symerr=None, negerr=None, poserr=None):
         """Set dataset with name with values (and optionally errors)."""
@@ -392,13 +394,13 @@ class CommandInterface(qt4.QObject):
         data = datasets.Dataset(val, symerr, negerr, poserr)
         op = operations.OperationDatasetSet(name, data)
         self.document.applyOperation(op)
- 
+
         if self.verbose:
             print "Set dataset '%s':" % name
-            print " Values = %s" % str( data.data )
-            print " Symmetric errors = %s" % str( data.serr )
-            print " Negative errors = %s" % str( data.nerr )
-            print " Positive errors = %s" % str( data.perr )
+            print " Values = %s" % str(data.data)
+            print " Symmetric errors = %s" % str(data.serr)
+            print " Negative errors = %s" % str(data.nerr)
+            print " Positive errors = %s" % str(data.perr)
 
     def SetDataDateTime(self, name, vals):
         """Set datetime dataset to be values given.
@@ -436,13 +438,13 @@ class CommandInterface(qt4.QObject):
                                                          parametric=parametric)
 
         data = self.document.applyOperation(op)
-        
+
         if self.verbose:
             print "Set dataset '%s' based on expression:" % name
-            print " Values = %s" % str( data.data )
-            print " Symmetric errors = %s" % str( data.serr )
-            print " Negative errors = %s" % str( data.nerr )
-            print " Positive errors = %s" % str( data.perr )
+            print " Values = %s" % str(data.data)
+            print " Symmetric errors = %s" % str(data.serr)
+            print " Negative errors = %s" % str(data.nerr)
+            print " Positive errors = %s" % str(data.perr)
             if parametric:
                 print " Where t goes form %g:%g in %i steps" % parametric
             print " linked to expression = %s" % repr(linked)
@@ -461,7 +463,7 @@ class CommandInterface(qt4.QObject):
         op = operations.OperationDatasetCreateRange(name, numsteps, parts,
                                                     linked)
         self.document.applyOperation(op)
-        
+
         if self.verbose:
             print "Set dataset '%s' based on range:" % name
             print " Number of steps = %i" % numsteps
@@ -608,6 +610,7 @@ class CommandInterface(qt4.QObject):
         else:
             return '1d'
 
+
     def ImportString(self, descriptor, dstring, useblocks=False):
         """Read data from the string using a descriptor.
 
@@ -621,11 +624,14 @@ class CommandInterface(qt4.QObject):
          converting the data
         """
 
-        params = importparams.ImportParamsSimple(
+        from veusz.formats.standard.params import ImportParamsSimple
+        from veusz.formats.standard.operations import OperationDataImport
+
+        parameters = ImportParamsSimple(
             descriptor=descriptor,
             datastr=dstring,
             useblocks=useblocks)
-        op = operations.OperationDataImport(params)
+        op = OperationDataImport(parameters)
         self.document.applyOperation(op)
 
         if self.verbose:
@@ -649,16 +655,18 @@ class CommandInterface(qt4.QObject):
         if transpose=True, then rows and columns are swapped
 
         """
-        
+        from veusz.formats.data2d.params import ImportParams2D
+        from veusz.formats.data2d.operations import OperationDataImport2D
+
         if type(datasetnames) in (str, unicode):
             datasetnames = [datasetnames]
 
-        params = importparams.ImportParams2D(
+        params = ImportParams2D(
             datasetnames=datasetnames,
             datastr=dstring, xrange=xrange,
             yrange=yrange, invertrows=invertrows,
             invertcols=invertcols, transpose=transpose)
-        op = operations.OperationDataImport2D(params)
+        op = OperationDataImport2D(params)
         self.document.applyOperation(op)
         if self.verbose:
             print "Imported datasets %s" % (', '.join(datasetnames))
@@ -685,20 +693,23 @@ class CommandInterface(qt4.QObject):
         if linked=True then the dataset is linked to the file
         """
 
+        from veusz.formats.data2d.params import ImportParams2D
+        from veusz.formats.data2d.operations import OperationDataImport2D
+
         # look up filename on path
         realfilename = self.findFileOnImportPath(filename)
 
         if type(datasetnames) in (str, unicode):
             datasetnames = [datasetnames]
 
-        params = importparams.ImportParams2D(
-            datasetnames=datasetnames, 
+        params = ImportParams2D(
+            datasetnames=datasetnames,
             filename=realfilename, xrange=xrange,
             yrange=yrange, invertrows=invertrows,
             invertcols=invertcols, transpose=transpose,
             prefix=prefix, suffix=suffix,
             linked=linked)
-        op = operations.OperationDataImport2D(params)
+        op = OperationDataImport2D(params)
         self.document.applyOperation(op)
         if self.verbose:
             print "Imported datasets %s" % (', '.join(datasetnames))
@@ -722,15 +733,17 @@ class CommandInterface(qt4.QObject):
          errors is a dict of the datasets with the number of errors while
          converting the data
         """
+        from veusz.formats.standard.params import ImportParamsSimple
+        from veusz.formats.standard.operations import OperationDataImport
 
         realfilename = self.findFileOnImportPath(filename)
 
-        params = importparams.ImportParamsSimple(
+        params = ImportParamsSimple(
             descriptor=descriptor, filename=realfilename,
             useblocks=useblocks, linked=linked,
             prefix=prefix, suffix=suffix,
             ignoretext=ignoretext)
-        op = operations.OperationDataImport(params)
+        op = OperationDataImport(params)
         self.document.applyOperation(op)
 
         if self.verbose:
@@ -775,6 +788,10 @@ class CommandInterface(qt4.QObject):
 
         If linked is True the data are linked with the file."""
 
+        from veusz.formats.csv.params import ImportParamsCSV
+        from veusz.formats.csv.operations import OperationDataImportCSV
+
+
         # backward compatibility
         if prefix:
             dsprefix = prefix + '_'
@@ -782,7 +799,7 @@ class CommandInterface(qt4.QObject):
         # lookup filename
         realfilename = self.findFileOnImportPath(filename)
 
-        params = importparams.ImportParamsCSV(
+        params = ImportParamsCSV(
             filename=realfilename, readrows=readrows,
             delimiter=delimiter, textdelimiter=textdelimiter,
             encoding=encoding,
@@ -793,7 +810,7 @@ class CommandInterface(qt4.QObject):
             prefix=dsprefix, suffix=dssuffix,
             linked=linked,
             )
-        op = operations.OperationDataImportCSV(params)
+        op = OperationDataImportCSV(params)
         self.document.applyOperation(op)
 
         if self.verbose:
@@ -802,9 +819,9 @@ class CommandInterface(qt4.QObject):
         return op.outdatasets
 
     def ImportFITSFile(self, dsname, filename, hdu,
-                       datacol = None, symerrcol = None,
-                       poserrcol = None, negerrcol = None,
-                       linked = False):
+                       datacol=None, symerrcol=None,
+                       poserrcol=None, negerrcol=None,
+                       linked=False):
         """Import data from a FITS file
 
         dsname is the name of the dataset
@@ -817,15 +834,17 @@ class CommandInterface(qt4.QObject):
 
         linked specfies that the dataset is linked to the file
         """
+        from veusz.formats.fits.params import ImportParamsFITS
+        from veusz.formats.fits.operations import OperationDataImportFITS
 
         # lookup filename
         realfilename = self.findFileOnImportPath(filename)
-        params = importparams.ImportParamsFITS(
+        params = ImportParamsFITS(
             dsname=dsname, filename=realfilename, hdu=hdu,
             datacol=datacol, symerrcol=symerrcol,
             poserrcol=poserrcol, negerrcol=negerrcol,
             linked=linked)
-        op = operations.OperationDataImportFITS(params)
+        op = OperationDataImportFITS(params)
         self.document.applyOperation(op)
 
     def ImportFilePlugin(self, plugin, filename, **args):
@@ -840,17 +859,19 @@ class CommandInterface(qt4.QObject):
 
         returns: list of imported datasets, list of imported customs
         """
+        from veusz.formats.simple_plugins.params import ImportParamsPlugin
+        from veusz.formats.simple_plugins.operations import OperationDataImportPlugin
 
         realfilename = self.findFileOnImportPath(filename)
-        params = importparams.ImportParamsPlugin(
+        params = ImportParamsPlugin(
             plugin=plugin, filename=realfilename, **args)
 
-        op = operations.OperationDataImportPlugin(params)
+        op = OperationDataImportPlugin(params)
         try:
             self.document.applyOperation(op)
         except:
             self.document.log("Error in plugin %s" % plugin)
-            exc =  ''.join(traceback.format_exc())
+            exc = ''.join(traceback.format_exc())
             self.document.log(exc)
         return op.outdatasets, op.outcustoms
 
@@ -879,9 +900,9 @@ class CommandInterface(qt4.QObject):
 
         if p.setup():
             p.newPage()
-            self.document.printTo( p,
-                                   range(self.document.getNumberPages()) )
-            
+            self.document.printTo(p,
+                                   range(self.document.getNumberPages()))
+
     def Export(self, filename, color=True, page=0, dpi=100,
                antialias=True, quality=85, backcolor='#ffffff00',
                pdfdpi=150, svgtextastext=False):
@@ -897,7 +918,7 @@ class CommandInterface(qt4.QObject):
         pdfdpi is the dpi to use when exporting eps or pdf files
         svgtextastext: write text in SVG as text, rather than curves
         """
-        
+
         e = export.Export(self.document, filename, page, color=color,
                           bitmapdpi=dpi, antialias=antialias,
                           quality=quality, backcolor=backcolor,
