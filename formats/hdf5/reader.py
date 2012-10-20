@@ -1,5 +1,3 @@
-# params for standard data import dialog
-
 #    Copyright (C) 2004 Jeremy S. Sanders
 #    Email: Jeremy Sanders <jeremy@jeremysanders.net>
 #
@@ -18,28 +16,13 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""params for FITS data import dialog."""
+"""This module contains routines for importing HDF5 data files
+in an easy-to-use manner."""
 
-from veusz.document.importparams import ImportParamsBase
+import re
+import numpy as N
 
-class ImportParamsHDF5(ImportParamsBase):
-    """HDF5 file import parameters.
+from veusz.document import datasets
+import veusz.utils as utils
+import veusz.qtall as qt4
 
-    Additional parameters:
-     dsname: name of dataset
-     hdu: name/number of hdu
-     datacol: name of column
-     symerrcol: symmetric error column
-     poserrcol: positive error column
-     negerrcol: negative error column
-    """
-
-    defaults = {
-        'dsname': None,
-        'hdu': None,
-        'datacol': None,
-        'symerrcol': None,
-        'poserrcol': None,
-        'negerrcol': None,
-        }
-    defaults.update(ImportParamsBase.defaults)

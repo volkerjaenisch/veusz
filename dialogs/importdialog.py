@@ -30,9 +30,10 @@ import exceptiondialog
 
 from veusz.formats.csv.dialog import ImportTabCSV
 from veusz.formats.data2d.dialog import ImportTab2D
-from veusz.formats.standard.dialog import ImportTabStandard
 from veusz.formats.fits.dialog import ImportTabFITS
+from veusz.formats.hdf5.dialog import ImportTabHDF5
 from veusz.formats.simple_plugins.dialog import ImportTabPlugins
+from veusz.formats.standard.dialog import ImportTabStandard
 
 from importtab import *
 
@@ -63,6 +64,7 @@ class ImportDialog(VeuszDialog):
             (_('&Standard'), ImportTabStandard),
             (_('CS&V'), ImportTabCSV),
             (_('FI&TS'), ImportTabFITS),
+            (_('&HDF5'), ImportTabHDF5),
             (_('&2D'), ImportTab2D),
             (_('Plugins'), ImportTabPlugins),
             ):

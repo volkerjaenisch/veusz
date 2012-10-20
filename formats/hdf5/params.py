@@ -18,12 +18,12 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##############################################################################
 
-"""params for FITS data import dialog."""
+"""params for HDF5 data import dialog."""
 
 from veusz.document.importparams import ImportParamsBase
 
 class ImportParamsHDF5(ImportParamsBase):
-    """HDF5 file import parameters.
+    """FITS file import parameters.
 
     Additional parameters:
      dsname: name of dataset

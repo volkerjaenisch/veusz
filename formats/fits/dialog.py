@@ -44,7 +44,7 @@ class ImportTabFITS(ImportTab):
 
     def loadUi(self):
         #TODO: Find better solution for importing the resource file
-        qt4.loadUi(os.path.join(utils.veuszDirectory, 'formats', 'fits',
+        qt4.loadUi(os.path.join(utils.veuszDirectory, 'formats', 'hdf5',
                                 self.resource), self)
         self.uiloaded = True
 
