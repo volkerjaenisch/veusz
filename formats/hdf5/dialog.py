@@ -67,6 +67,8 @@ class ImportTabHDF5(ImportTab):
             ]
         self.hdf5numfmtcombo.defaultlist = [_('System'), _('English'), _('European')]
         self.hdf5headermodecombo.defaultlist = [_('Multiple'), _('1st row'), _('None')]
+        self.filename = None
+        self.encoding = None
 
     def reset(self):
         """Reset controls."""
@@ -108,22 +110,33 @@ class ImportTabHDF5(ImportTab):
 #            _recurse_hdf5_nodes(hdf_file, group._v_pathname )                                                                                                                                                                                      
 
     def _show_tables(self, hdf_file, tree_position, parent_item):
-        for table in hdf_file.listNodes(tree_position):
-            item = qt4.QStandardItem(qt4.QString("%0").arg(table._v_name))
+        for table in hdf_file.getNode('/' + tree_position)._v_children:
+            item = qt4.QStandardItem(qt4.QString("%0").arg(table))
             parent_item.appendRow(item)
 
     def _recurse_hdf5_nodes(self, hdf_file, tree_position, parent_item):
         """recurses the hdf5 tree recursivly and generate a QT Treeview"""
-        for group in hdf_file.listNodes(tree_position, classname='Group'):
-            item = qt4.QStandardItem(qt4.QString("%0").arg(group._v_name))
+        node = hdf_file.getNode(tree_position)
+        for group_name in node._v_groups:
+            item = qt4.QStandardItem(qt4.QString("%0").arg(group_name))
             parent_item.appendRow(item)
-            self._show_tables(hdf_file, group._v_pathname, item)
+#            self._show_tables(hdf_file, group_name, item)
+            self._recurse_hdf5_nodes(hdf_file, node._v_pathname + group_name + "/", item)
+
+        for table_name in node._v_leaves:
+            item = qt4.QStandardItem(qt4.QString("%0").arg(table_name))
+            parent_item.appendRow(item)
 
 
 
     def doPreview(self, filename, encoding):
         """preview - show HDF structure"""
 
+        if self.filename and self.encoding :
+            if self.filename == filename and self.encoding == encoding:
+                return True
+        self.filename = filename
+        self.encoding = encoding
         self.model = qt4.QStandardItemModel()
 
         tree = self.previewtreehdf5
