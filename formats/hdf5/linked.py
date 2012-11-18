@@ -27,7 +27,7 @@ class LinkedFileFITS(LinkedFileBase):
     def createOperation(self):
         """Return operation to recreate self."""
         import operations
-        return operations.OperationDataImportFITS
+        return operations.OperationDataImportHDF5
 
     def saveToFile(self, fileobj, relpath=None):
         """Save the link to the document file."""
@@ -43,5 +43,5 @@ class LinkedFileFITS(LinkedFileBase):
                 args.append("%s=%s" % (param, repr(column)))
         args.append("linked=True")
 
-        fileobj.write("ImportFITSFile(%s)\n" % ", ".join(args))
+        fileobj.write("ImportHDF5File(%s)\n" % ", ".join(args))
 

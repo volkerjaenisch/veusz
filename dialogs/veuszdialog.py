@@ -30,7 +30,7 @@ class VeuszDialog(qt4.QDialog):
     - Emits dialogFinished when dialog is done
     """
 
-    def __init__(self, mainwindow, uifile, modal=False):
+    def __init__(self, mainwindow, uifile, path='dialogs', modal=False):
         """Initialise dialog given Veusz mainwindow and uifile for dialog.
         If modal is False, base on a top level window instead
         """
@@ -45,9 +45,9 @@ class VeuszDialog(qt4.QDialog):
         qt4.QDialog.__init__(self, mainwindow, flag)
         self.setAttribute(qt4.Qt.WA_DeleteOnClose)
 
-        # TODO: This ist to hard wired and should be relaxed. E.g. if uifile 
+        # TODO: This is to hard wired and should be relaxed. E.g. if uifile 
         # starts with "/" then use it directly
-        qt4.loadUi(os.path.join(utils.veuszDirectory, 'dialogs', uifile),
+        qt4.loadUi(os.path.join(utils.veuszDirectory, path , uifile),
                    self)
 
         self.mainwindow = mainwindow

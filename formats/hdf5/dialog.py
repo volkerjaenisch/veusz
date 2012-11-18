@@ -21,7 +21,9 @@
 """Dialog box for FITS import."""
 
 import os.path
-import tables
+#import tables
+
+from PyQt4.QtCore import Qt
 
 from veusz.dialogs.importtab import ImportTab
 import veusz.qtall as qt4
@@ -37,6 +39,14 @@ def _(text, disambiguation=None, context="ImportDialog"):
     return unicode(
         qt4.QCoreApplication.translate(context, text, disambiguation))
 
+class NodeData(object):
+    """
+    Lightweight class for storing information on hdf5 nodes in treeview items
+    """
+    def __init__(self, path, isTable=False):
+        self.isTable = isTable
+        self.path = path
+
 class ImportTabHDF5(ImportTab):
     """For importing data from CSV files."""
 
@@ -44,6 +54,8 @@ class ImportTabHDF5(ImportTab):
 
     def loadUi(self):
         """Load user interface and setup panel."""
+        self.filename = None
+        self.encoding = None
         #TODO: Find better solution for importing the resource file
         qt4.loadUi(os.path.join(utils.veuszDirectory, 'formats', 'hdf5',
                                 self.resource), self)
@@ -51,86 +63,111 @@ class ImportTabHDF5(ImportTab):
 
         self.connect(self.hdf5helpbutton, qt4.SIGNAL('clicked()'),
                       self.slotHelp)
-        self.connect(self.hdf5delimitercombo,
-                      qt4.SIGNAL('editTextChanged(const QString&)'),
-                      self.dialog.slotUpdatePreview)
-        self.connect(self.hdf5textdelimitercombo,
-                      qt4.SIGNAL('editTextChanged(const QString&)'),
-                      self.dialog.slotUpdatePreview)
-        self.hdf5delimitercombo.default = [
-            ',', '{tab}', '{space}', '|', ':', ';']
-        self.hdf5textdelimitercombo.default = ['"', "'"]
+        self.connect(self.hdf5previewtree,
+                      qt4.SIGNAL('clicked ( const QModelIndex& )'),
+                      self.updatePreviewTable)
+
         self.hdf5datefmtcombo.default = [
             'YYYY-MM-DD|T|hh:mm:ss',
             'DD/MM/YY| |hh:mm:ss',
             'M/D/YY| |hh:mm:ss'
             ]
         self.hdf5numfmtcombo.defaultlist = [_('System'), _('English'), _('European')]
-        self.hdf5headermodecombo.defaultlist = [_('Multiple'), _('1st row'), _('None')]
-        self.filename = None
-        self.encoding = None
 
     def reset(self):
         """Reset controls."""
-        self.hdf5delimitercombo.setEditText(",")
-        self.hdf5textdelimitercombo.setEditText('"')
-        self.hdf5directioncombo.setCurrentIndex(0)
-        self.hdf5ignorehdrspin.setValue(0)
-        self.hdf5ignoretopspin.setValue(0)
-        self.hdf5blanksdatacheck.setChecked(False)
-        self.hdf5numfmtcombo.setCurrentIndex(0)
         self.hdf5datefmtcombo.setEditText(
             params.ImportParamsHDF5.defaults['dateformat'])
-        self.hdf5headermodecombo.setCurrentIndex(0)
 
     def slotHelp(self):
         """Asked for help."""
-        d = VeuszDialog(self.dialog.mainwindow, 'importhelphdf5.ui')
+        d = VeuszDialog(self.dialog.mainwindow, 'importhelphdf5.ui', path='formats/hdf5')
         self.dialog.mainwindow.showDialog(d)
-
-    def getCSVDelimiter(self):
-        """Get CSV delimiter, converting friendly names."""
-        delim = str(self.hdf5delimitercombo.text())
-        if delim == '{space}':
-            delim = ' '
-        elif delim == '{tab}':
-            delim = '\t'
-        return delim
 
     def clearView(self):
         """If invalid filename, clear preview."""
         return
 
-#def _recurse_hdf5_nodes( hdf_file, tree_position):                                                                                                                                                                                                 
-#        """recurses the hdf5 tree recursivly and generate a QT Treeview"""                                                                                                                                                                         
-#        for group in hdf_file.listNodes(tree_position, classname="Group"):                                                                                                                                                                         
-#            print group._v_name                                                                                                                                                                                                                    
-#            # parent_item.appendRow(item)                                                                                                                                                                                                          
-#            _show_tables( hdf_file, group._v_pathname )                                                                                                                                                                                            
-#            _recurse_hdf5_nodes(hdf_file, group._v_pathname )                                                                                                                                                                                      
+    def updatePreviewTable(self, index):
+        """
+        Handler for click into the treeview
+        """
+        # retrieve the NodeData object
+        node_data = index.data(Qt.UserRole).toPyObject()
+        # return if we are not on a table node 
+        if not node_data.isTable :
+            return
+        self.hdf5_path = node_data.path
+        self.drawPreviewTable()
 
-    def _show_tables(self, hdf_file, tree_position, parent_item):
-        for table in hdf_file.getNode('/' + tree_position)._v_children:
-            item = qt4.QStandardItem(qt4.QString("%0").arg(table))
-            parent_item.appendRow(item)
+    def drawPreviewTable(self):
 
-    def _recurse_hdf5_nodes(self, hdf_file, tree_position, parent_item):
+        t = self.hdf5previewtable
+        t.verticalHeader().show() # restore from a previous import
+        t.horizontalHeader().show()
+        t.horizontalHeader().setStretchLastSection(False)
+#        t.clear()
+        t.setColumnCount(0)
+        t.setRowCount(0)
+
+        table = self.hdf5_file.getNode(self.hdf5_path)
+        col_names = table.description._v_names
+        numcols = len(col_names)
+        numrows = min(100, table.nrows)
+        t.setColumnCount(numcols)
+        t.setRowCount(numrows + 1)
+
+        # set the header
+        headers = qt4.QStringList()
+        for col_name in col_names:
+            headers.append(qt4.QString(col_name))
+
+        t.setHorizontalHeaderLabels(headers)
+
+        # fill up table
+        row_nr = 0
+        for row in table.read(start=0, stop=numrows):
+            col_nr = 0
+            for col_name in col_names:
+                item = qt4.QTableWidgetItem(unicode(row[col_name]))
+                t.setItem(row_nr, col_nr, item)
+                col_nr += 1
+            row_nr += 1
+
+        t.resizeColumnsToContents()
+
+    def _recurse_hdf5_nodes(self, tree_position, parent_item):
         """recurses the hdf5 tree recursivly and generate a QT Treeview"""
-        node = hdf_file.getNode(tree_position)
+        # fetch current node in hdf5 file
+        node = self.hdf5_file.getNode(tree_position)
+        # iterate over the subgrous
         for group_name in node._v_groups:
+            # generate display text for tree item
             item = qt4.QStandardItem(qt4.QString("%0").arg(group_name))
+            # store the nodes path as user data into the tree item
+            item.setData(NodeData(node._v_pathname + group_name), Qt.UserRole)
+            # append tree item under the current parent item
             parent_item.appendRow(item)
-#            self._show_tables(hdf_file, group_name, item)
-            self._recurse_hdf5_nodes(hdf_file, node._v_pathname + group_name + "/", item)
+            # recursion
+            self._recurse_hdf5_nodes(node._v_pathname + group_name + "/", item)
 
+        # generate nodes for the tables
         for table_name in node._v_leaves:
+            # generate display text for tree item
             item = qt4.QStandardItem(qt4.QString("%0").arg(table_name))
+            # store the nodes path as user data into the tree item
+            item.setData(NodeData(node._v_pathname + table_name, isTable=True), Qt.UserRole)
+            # append tree item under the current parent item            
             parent_item.appendRow(item)
-
-
 
     def doPreview(self, filename, encoding):
         """preview - show HDF structure"""
+
+        try:
+            import tables
+        except ImportError:
+            raise RuntimeError, ('PyTables is required to import '
+                                  'data from hdf5 files')
 
         if self.filename and self.encoding :
             if self.filename == filename and self.encoding == encoding:
@@ -139,57 +176,29 @@ class ImportTabHDF5(ImportTab):
         self.encoding = encoding
         self.model = qt4.QStandardItemModel()
 
-        tree = self.previewtreehdf5
-
         try :
-            hdf5_file = tables.openFile(filename)
+            self.hdf5_file = tables.openFile(filename)
         except :
             self.clearView()
             return False
 
         rootItem = self.model.invisibleRootItem()
-        self._recurse_hdf5_nodes(hdf5_file, "/", rootItem)
+        self._recurse_hdf5_nodes("/", rootItem)
 
-        self.previewtreehdf5.setModel(self.model)
-#        self.previewtreehdf5.setDragDropMode(qt4.QAbstractItemView.InternalMove)
+        self.hdf5previewtree.setModel(self.model)
 
         return True
 
     def doImport(self, doc, filename, linked, encoding, prefix, suffix, tags):
         """Import from HDF5 file."""
 
-        # get various values
-        inrows = self.hdf5directioncombo.currentIndex() == 1
-
-        try:
-            delimiter = self.getCSVDelimiter()
-            textdelimiter = str(self.hdf5textdelimitercombo.currentText())
-        except UnicodeEncodeError:
-            return
-
-        numericlocale = (str(qt4.QLocale().name()),
-                          'en_US',
-                          'de_DE')[self.hdf5numfmtcombo.currentIndex()]
-        headerignore = self.hdf5ignorehdrspin.value()
-        rowsignore = self.hdf5ignoretopspin.value()
-        blanksaredata = self.hdf5blanksdatacheck.isChecked()
         dateformat = unicode(self.hdf5datefmtcombo.currentText())
-        headermode = ('multi', '1st', 'none')[
-            self.hdf5headermodecombo.currentIndex()]
 
         # create import parameters and operation objects
         parameters = params.ImportParamsHDF5(
             filename=filename,
-            readrows=inrows,
             encoding=encoding,
-            delimiter=delimiter,
-            textdelimiter=textdelimiter,
-            headerignore=headerignore,
-            rowsignore=rowsignore,
-            blanksaredata=blanksaredata,
-            numericlocale=numericlocale,
             dateformat=dateformat,
-            headermode=headermode,
             prefix=prefix, suffix=suffix,
             tags=tags,
             linked=linked,
@@ -216,4 +225,4 @@ class ImportTabHDF5(ImportTab):
 
     def isFiletypeSupported(self, ftype):
         """Is the filetype supported by this tab?"""
-        return ftype in ('.tsv', '.hdf5')
+        return ftype in ('.h5', '.hdf5')

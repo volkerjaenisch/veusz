@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>491</height>
+    <height>719</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -19,14 +19,23 @@
     </widget>
    </item>
    <item>
-    <widget class="QTreeView" name="previewtreehdf5">
+    <widget class="QTreeView" name="hdf5previewtree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+      <set>QAbstractItemView::SelectedClicked</set>
      </property>
      <property name="tabKeyNavigation">
       <bool>false</bool>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="hdf5previewtable"/>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
@@ -37,86 +46,6 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Header mode</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="HistoryValueCombo" name="hdf5headermodecombo">
-          <property name="toolTip">
-           <string>'Multiple': allow multiple headers in file
-'Single': 1st non-blank row is header
-'None': no headers, guess data types</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>&amp;Direction</string>
-          </property>
-          <property name="buddy">
-           <cstring>hdf5directioncombo</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QComboBox" name="hdf5directioncombo">
-          <property name="toolTip">
-           <string>Are the data arranged in columns or rows?</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Columns</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Rows</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Ignore rows at top</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="HistorySpinBox" name="hdf5ignoretopspin">
-          <property name="toolTip">
-           <string>Ignore N row at the top of the file.
-If data are arranged in rows, ignores columns instead.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Ignore rows after headers</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="HistorySpinBox" name="hdf5ignorehdrspin">
-          <property name="toolTip">
-           <string>After reading a header, ignore N rows in that column.
-If Direction is set to Rows, ignore N columns instead.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="HistoryCheck" name="hdf5blanksdatacheck">
-          <property name="text">
-           <string>Treat blanks as data values</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
          <widget class="QPushButton" name="hdf5helpbutton">
           <property name="toolTip">
            <string>Help on how CSV files should be formatted</string>
@@ -135,13 +64,6 @@ If Direction is set to Rows, ignore N columns instead.</string>
         <string>Locale</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Numerics</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="HistoryValueCombo" name="hdf5numfmtcombo">
           <property name="toolTip">
@@ -172,46 +94,10 @@ separated by |</string>
           </property>
          </widget>
         </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Delimiters</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Column</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="HistoryCombo" name="hdf5delimitercombo">
-          <property name="toolTip">
-           <string>Delimiter between fields. This is usually a comma.</string>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Text</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="HistoryCombo" name="hdf5textdelimitercombo">
-          <property name="toolTip">
-           <string>Character to delimit text, usually a quote (&quot;).</string>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
+           <string>Numerics</string>
           </property>
          </widget>
         </item>
@@ -227,16 +113,6 @@ separated by |</string>
    <class>HistoryCombo</class>
    <extends>QComboBox</extends>
    <header>historycombo.h</header>
-  </customwidget>
-  <customwidget>
-   <class>HistorySpinBox</class>
-   <extends>QSpinBox</extends>
-   <header>historyspinbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>HistoryCheck</class>
-   <extends>QCheckBox</extends>
-   <header>historycheck.h</header>
   </customwidget>
   <customwidget>
    <class>HistoryValueCombo</class>

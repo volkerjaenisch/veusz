@@ -39,64 +39,6 @@ class OperationDataImportHDF5(OperationDataImportBase):
 
     descr = _('import HDF5 file')
 
-    def _import1d(self, hdu):
-        """Import 1d data from hdu."""
-
-        data = hdu.data
-        datav = None
-        symv = None
-        posv = None
-        negv = None
-
-        # read the columns required
-        p = self.params
-        if p.datacol is not None:
-            datav = data.field(p.datacol)
-        if p.symerrcol is not None:
-            symv = data.field(p.symerrcol)
-        if p.poserrcol is not None:
-            posv = data.field(p.poserrcol)
-        if p.negerrcol is not None:
-            negv = data.field(p.negerrcol)
-
-        # actually create the dataset
-        return datasets.Dataset(data=datav, serr=symv, perr=posv, nerr=negv)
-
-    def _import1dimage(self, hdu):
-        """Import 1d image data form hdu."""
-        return datasets.Dataset(data=hdu.data)
-
-    def _import2dimage(self, hdu):
-        """Import 2d image data from hdu."""
-
-        p = self.params
-        if (p.datacol is not None or p.symerrcol is not None
-             or p.poserrcol is not None
-             or p.negerrcol is not None):
-            print "Warning: ignoring columns as import 2D dataset"
-
-        header = hdu.header
-        data = hdu.data
-
-        try:
-            # try to read WCS for image, and work out x/yrange
-            wcs = [header[i] for i in ('CRVAL1', 'CRPIX1', 'CDELT1',
-                                       'CRVAL2', 'CRPIX2', 'CDELT2')]
-
-            rangex = ((data.shape[1] - wcs[1]) * wcs[2] + wcs[0],
-                       (0 - wcs[1]) * wcs[2] + wcs[0])
-            rangey = ((0 - wcs[4]) * wcs[5] + wcs[3],
-                       (data.shape[0] - wcs[4]) * wcs[5] + wcs[3])
-
-            rangex = (rangex[1], rangex[0])
-
-        except KeyError:
-            # no / broken wcs
-            rangex = None
-            rangey = None
-
-        return datasets.Dataset2D(data, xrange=rangex, yrange=rangey)
-
     def doImport(self, document):
         """Do the import."""
 
@@ -107,26 +49,13 @@ class OperationDataImportHDF5(OperationDataImportBase):
                                   'data from hdf5 files')
 
         p = self.params
-        f = pyfits.open(str(p.filename), 'readonly')
-        hdu = f[p.hdu]
 
-        try:
-            # raise an exception if this isn't a table therefore is an image
-            hdu.get_coldefs()
-            ds = self._import1d(hdu)
-
-        except AttributeError:
-            naxis = hdu.header.get('NAXIS')
-            if naxis == 1:
-                ds = self._import1dimage(hdu)
-            elif naxis == 2:
-                ds = self._import2dimage(hdu)
-            else:
-                raise RuntimeError, "Cannot import images with %i dimensions" % naxis
-        f.close()
+        self.hdf5_file = openFile(p.filename, 'r')
+        table = self.hdf5_file.getNode(p.hdf5_path)
+        col_names = table.description._v_names
 
         if p.linked:
-            ds.linked = linked.LinkedFileFITS(self.params)
+            ds.linked = linked.LinkedFileHDF5(self.params)
         if p.dsname in document.data:
             self.olddataset = document.data[p.dsname]
         else:
