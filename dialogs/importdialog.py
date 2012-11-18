@@ -226,7 +226,7 @@ class ImportDialog(VeuszDialog):
             importtab.doImport(self.document, filename, linked, encoding,
                                prefix, suffix, tags)
             qt4.QApplication.restoreOverrideCursor()
-        except Exception:
+        except Exception, e:
             qt4.QApplication.restoreOverrideCursor()
 
             # show exception dialog

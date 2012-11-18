@@ -35,11 +35,6 @@ class ImportParamsHDF5(ImportParamsBase):
     """
 
     defaults = {
-        'dsname': None,
-        'hdu': None,
-        'datacol': None,
-        'symerrcol': None,
-        'poserrcol': None,
-        'negerrcol': None,
+        'hdf5_path': None,
         }
     defaults.update(ImportParamsBase.defaults)

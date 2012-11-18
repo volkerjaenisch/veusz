@@ -50,16 +50,15 @@ class OperationDataImportHDF5(OperationDataImportBase):
 
         p = self.params
 
-        self.hdf5_file = openFile(p.filename, 'r')
+        self.hdf5_file = tables.openFile(p.filename, 'r')
         table = self.hdf5_file.getNode(p.hdf5_path)
         col_names = table.description._v_names
 
-        if p.linked:
-            ds.linked = linked.LinkedFileHDF5(self.params)
-        if p.dsname in document.data:
-            self.olddataset = document.data[p.dsname]
-        else:
-            self.olddataset = None
-        document.setData(p.dsname, ds)
-        self.outdatasets.append(p.dsname)
+
+        for col_name in col_names:
+            col = table.col(col_name)
+            ds = datasets.Dataset(data=col)
+            document.setData(col_name, ds)
+
+            self.outdatasets.append(col_name)
 

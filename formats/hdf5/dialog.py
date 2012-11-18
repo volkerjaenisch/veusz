@@ -192,14 +192,14 @@ class ImportTabHDF5(ImportTab):
     def doImport(self, doc, filename, linked, encoding, prefix, suffix, tags):
         """Import from HDF5 file."""
 
-        dateformat = unicode(self.hdf5datefmtcombo.currentText())
 
         # create import parameters and operation objects
         parameters = params.ImportParamsHDF5(
             filename=filename,
+            hdf5_path=self.hdf5_path,
             encoding=encoding,
-            dateformat=dateformat,
-            prefix=prefix, suffix=suffix,
+            prefix=prefix,
+            suffix=suffix,
             tags=tags,
             linked=linked,
             )
@@ -211,7 +211,7 @@ class ImportTabHDF5(ImportTab):
         # update output, showing what datasets were imported
         lines = self.dialog.retnDatasetInfo(op.outdatasets, linked, filename)
 
-        t = self.previewtablehdf5
+        t = self.hdf5previewtable
         t.verticalHeader().hide()
         t.horizontalHeader().hide()
         t.horizontalHeader().setStretchLastSection(True)
