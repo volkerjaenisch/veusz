@@ -57,7 +57,10 @@ class OperationDataImportHDF5(OperationDataImportBase):
 
         for col_name in col_names:
             col = table.col(col_name)
-            ds = datasets.Dataset(data=col)
+            if col_name == 'veusz_time':
+                ds = datasets.DatasetDateTime(data=col)
+            else:
+                ds = datasets.Dataset(data=col)
             document.setData(col_name, ds)
 
             self.outdatasets.append(col_name)
