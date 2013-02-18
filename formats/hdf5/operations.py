@@ -54,14 +54,13 @@ class OperationDataImportHDF5(OperationDataImportBase):
         table = self.hdf5_file.getNode(p.hdf5_path)
         col_names = table.description._v_names
 
-
         for col_name in col_names:
             col = table.col(col_name)
             if col_name == 'veusz_time':
                 ds = datasets.DatasetDateTime(data=col)
             else:
                 ds = datasets.Dataset(data=col)
-            document.setData(col_name, ds)
+            ds_name = p.prefix + col_name + p.suffix
+            document.setData(ds_name, ds)
 
-            self.outdatasets.append(col_name)
-
+            self.outdatasets.append(ds_name)
